@@ -1,0 +1,9 @@
+rtx
+intel
+amd
+4070
+mac
+vans
+msi
+logitech
+nzxt
