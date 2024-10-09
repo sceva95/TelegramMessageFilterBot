@@ -20,7 +20,7 @@ async def echo(event):
     message = event.message.message
 
     # Rispondi con lo stesso messaggio
-    await event.respond(message)
+    # await event.respond(message)
 
     # Stampa il messaggio nella console (opzionale)
     print(f"Ricevuto messaggio: {message}")
