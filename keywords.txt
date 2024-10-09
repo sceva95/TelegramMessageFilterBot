@@ -2,7 +2,7 @@ rtx
 intel
 amd
 4070
-mac
+macbook
 vans
 msi
 logitech
