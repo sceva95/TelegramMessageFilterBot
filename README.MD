@@ -1,4 +1,4 @@
-# Message Filter Bot
+# Telegram Message Filter Bot
 
 This program is for starting a Telegram bot that filters notifications based on keywords entered in the keywords file (separated by a carriage return).
 
