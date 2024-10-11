@@ -2,8 +2,11 @@
 
 cd ~ || exit 1
 
-# Naviga nella directory Kometa
+# Naviga nella directory MessageFilterBot
 cd MessageFilterBot || exit 1
+
+# Fai pull dalla repo per aggiornare il file keywords.txt
+git pull
 
 # Attiva l'ambiente virtuale
 source messagefilter/bin/activate || exit 1
