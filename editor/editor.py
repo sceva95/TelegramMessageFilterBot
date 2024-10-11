@@ -3,10 +3,8 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Mess
 from dotenv import load_dotenv
 import os
 
-# Carica le variabili d'ambiente
 load_dotenv()
 
-# Funzione per caricare le parole chiave dal file
 def load_keywords():
     try:
         with open('keywords.txt', 'r') as f:
@@ -16,7 +14,6 @@ def load_keywords():
         print(f"Errore nel caricamento delle parole chiave: {e}")
         return []
 
-# Funzione per aggiungere una parola chiave al file
 def add_keyword(new_keyword):
     try:
         with open('keywords.txt', 'a') as f:
@@ -25,7 +22,6 @@ def add_keyword(new_keyword):
     except Exception as e:
         print(f"Errore nell'aggiunta della parola chiave: {e}")
 
-# Funzione che mostra i bottoni al comando /start
 async def start(update: Update, context: CallbackContext) -> None:
     keyboard = [
         [InlineKeyboardButton("Mostra le parole chiave", callback_data='list_keywords')],
@@ -35,10 +31,9 @@ async def start(update: Update, context: CallbackContext) -> None:
 
     await update.message.reply_text('Scegli un\'azione:', reply_markup=reply_markup)
 
-# Funzione per gestire i bottoni premuti
 async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    await query.answer()  # Risponde alla callback
+    await query.answer()  
 
     if query.data == 'list_keywords':
         keywords = load_keywords()
@@ -49,10 +44,8 @@ async def button(update: Update, context: CallbackContext) -> None:
 
     elif query.data == 'add_keyword':
         await query.edit_message_text("Invia la parola chiave che vuoi aggiungere:")
-        # Aggiungi uno stato per indicare che stai aspettando una parola chiave
         context.user_data['awaiting_keyword'] = True
 
-# Funzione per gestire l'inserimento di una nuova parola chiave
 async def handle_new_keyword(update: Update, context: CallbackContext) -> None:
     if context.user_data.get('awaiting_keyword'):
         new_keyword = update.message.text.strip()
@@ -61,23 +54,17 @@ async def handle_new_keyword(update: Update, context: CallbackContext) -> None:
         else:
             add_keyword(new_keyword)
             await update.message.reply_text(f"Parola chiave '{new_keyword}' aggiunta con successo!")
-        # Una volta aggiunta la parola chiave, rimuovi lo stato
         context.user_data['awaiting_keyword'] = False
 
 def main():
-    # Inserisci il tuo token del bot
     token = os.getenv("TOKEN")
 
-    # Crea un'applicazione
     application = Application.builder().token(token).build()
 
-    # Aggiungi i gestori per i comandi e i bottoni
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(button))
-    # Gestore per il messaggio dell'utente quando invia la nuova parola chiave
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_new_keyword))
 
-    # Avvia il bot
     application.run_polling()
 
 if __name__ == '__main__':
