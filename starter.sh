@@ -1,5 +1,13 @@
 #!/bin/bash
 
+cd ~ || exit 1
+
+# Naviga nella directory Kometa
+cd MessageFilterBot || exit 1
+
+# Attiva l'ambiente virtuale
+source messagefilter/bin/activate || exit 1
+
 # Carica le variabili dal file .env
 set -a
 source .env
