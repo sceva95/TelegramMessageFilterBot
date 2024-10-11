@@ -16,9 +16,9 @@ async def send_to_bot(message_to_send):
     chat_id = int(os.getenv("USER_CHAT_ID"))
     try:
         await client.send_message(chat_id, message_to_send)
-        print(f"Messaggio inviato correttamente!")
+        print(f"Message sent correctly!")
     except Exception as e:
-        print(f"Eccezione rilevata: {e}")
+        print(f"Exception: {e}")
 
 async def listen_socket():
     while True:
@@ -29,36 +29,36 @@ async def listen_socket():
             current_time = datetime.now()
             timestamp = current_time.strftime('%Y-%m-%d %H:%M:%S')
 
-            await send_to_bot(f'Sender bot connesso!\nTimestamp: {timestamp}')
+            await send_to_bot(f'Sender bot connected!\nTimestamp: {timestamp}')
 
             try:
                 while True:
                     data = client_socket.recv(1024)
                     if not data:
-                        print("Connessione chiusa dal server.")
+                        print("Connection closed by server.")
                         break
                     shared_variable = data.decode()
-                    print(f"Variabile ricevuta: {shared_variable}")
+                    print(f"Variable received: {shared_variable}")
                     await send_to_bot(shared_variable)
 
             finally:
                 current_time = datetime.now()
                 timestamp = current_time.strftime('%Y-%m-%d %H:%M:%S')
                 client_socket.close()
-                await send_to_bot(f'Connessione chiusa!\nTimestamp: {timestamp}\nTentativo di riconnessione...')
-                print("Connessione chiusa, tentativo di riconnessione...")
+                await send_to_bot(f'Connection closed!\nTimestamp: {timestamp}\nAttempt to reconnect...')
+                print("{timestamp}\nConnection closed, attempt to reconnect...")
         
         except (ConnectionRefusedError, socket.error) as e:
-            print(f"Errore di connessione: {e}. Riprovo tra 5 secondi...")
+            print(f"Connection error: {e}. I'll try again in five seconds...")
             await asyncio.sleep(5)
 
         except Exception as e:
-            print(f"Errore inatteso: {e}.")
+            print(f"Unexpected error: {e}.")
             await asyncio.sleep(5)
 
 async def start_bot():
     await client.start()
-    print("Bot in esecuzione...")
+    print("Running bots...")
 
     await listen_socket()
 

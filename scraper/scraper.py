@@ -20,7 +20,7 @@ BOT_USERNAME = os.getenv("BOT_USERNAME")
 client = TelegramClient('scraper', api_id, api_hash)
 
 keywords_pattern = None
-conn = None  # Variabile globale per la connessione
+conn = None 
 
 def load_keywords():
     try:
@@ -28,7 +28,7 @@ def load_keywords():
             keywords = [line.strip() for line in f if line.strip()]
         return keywords
     except Exception as e:
-        print(f"Errore durante il caricamento delle parole chiave: {e}")
+        print(f"Error when loading keywords: {e}")
         return []
 
 def update_keywords_pattern():
@@ -46,7 +46,7 @@ async def refresh_keywords_periodically(interval=60):
 @client.on(events.NewMessage())
 async def handler(event):
     global keywords_pattern
-    global conn  # Dichiara conn come globale
+    global conn
 
     if keywords_pattern is None or conn is None:
         return
@@ -66,36 +66,34 @@ async def handler(event):
         elif sender_username:
             channel_name = sender_username
         else:
-            channel_name = "Nome canale non disponibile"
+            channel_name = "Channel name not available"
 
-        message_to_send = f"Messaggio dal canale '{channel_name}':\n{message_text}\n"
+        message_to_send = f"Message from the channel '{channel_name}':\n{message_text}\n"
 
-        # Invia il messaggio al bot connesso tramite socket
         try:
             conn.sendall(message_to_send.encode())
         except BrokenPipeError:
-            print("La connessione è stata chiusa, ricollegandomi...")
+            print("The connection was closed, reconnecting...")
             reconnect_socket()
 
 def reconnect_socket():
     global conn
     while True:
         try:
-            print("In attesa di una nuova connessione...")
+            print("Waiting for a new connection...")
             conn, addr = server_socket.accept()
             print(f"Connessione da {addr}")
             break
         except Exception as e:
-            print(f"Errore nella connessione: {e}")
+            print(f"Connection error: {e}")
 
 async def start_bot():
     await client.start()
-    print("Bot in esecuzione...")
+    print("Running bots...")
     asyncio.create_task(refresh_keywords_periodically())
     await client.run_until_disconnected()
 
-# Esegui il client
 if __name__ == '__main__':
-    reconnect_socket()  # Stabilisce la connessione iniziale
+    reconnect_socket()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_bot())

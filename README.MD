@@ -96,15 +96,19 @@ When both sender and scraper are up and running they open a socket connection on
 
 You can edit it with the liked port on both scraper.py and sender.py
 
+***Perform the above steps to start the two bots in a virtual environment and connect them to telegram***
+
 ## starter.sh and kill_bot.sh
 
-Perform the above steps to start the two bots in a virtual environment and connect them to telegram
+Inside `scripts` folder there's two .sh file
 
-After the bots are first started you can use these scripts to start and terminate the bots.
+### The first one: starter.sh
 
-The first one pulls from the repo, open a virtual env named `messagefilter` and starts the two bots by saving the pids to a temp file
+It pulls from the repo, open a virtual env named `messagefilter` and starts the two bots by saving the pids to a temp file
 
-The second one takes the two pids and terminates them
+### The second one: kill_bot.sh
+
+It read the two pids from temp file and kill them
 
 ## Conclusion
 
