@@ -38,7 +38,7 @@ def update_keywords_pattern():
 
 update_keywords_pattern()
 
-async def refresh_keywords_periodically(interval=60):
+async def refresh_keywords_periodically(interval=300):
     while True:
         update_keywords_pattern()
         await asyncio.sleep(interval)
