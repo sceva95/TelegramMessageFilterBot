@@ -5,5 +5,9 @@ amd
 macbook
 vans
 msi
-logitech
-iphone
+supet
+ti
+dreame
+SwitchBot Hub 2
+go 3
+brita
