@@ -1,6 +1,6 @@
 rtx
 intel
-amd
+ryzen
 4070
 macbook
 vans
@@ -8,6 +8,7 @@ msi
 supet
 ti
 dreame
-SwitchBot Hub 2
+SwitchBot
 go 3
+insta
 brita
