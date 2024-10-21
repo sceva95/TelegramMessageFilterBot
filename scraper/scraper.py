@@ -48,6 +48,9 @@ async def handler(event):
     global keywords_pattern
     global conn
 
+    if event.message.is_channel and event.message.reply_to:
+        return
+
     if keywords_pattern is None or conn is None:
         return
 
