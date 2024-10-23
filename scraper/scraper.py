@@ -71,7 +71,7 @@ async def handler(event):
         else:
             channel_name = "Channel name not available"
 
-        message_to_send = f"Message matching: {pattern_match}\nFrom the channel '{channel_name}':\n{message_text}\n"
+        message_to_send = f"Message matching: {pattern_match.group(1)}\nFrom the channel '{channel_name}':\n{message_text}\n"
 
         try:
             conn.sendall(message_to_send.encode())
