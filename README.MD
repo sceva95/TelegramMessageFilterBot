@@ -9,7 +9,6 @@ This program is for starting a Telegram bot that filters notifications based on 
 3. Create a new virtual environment and install requirements. [See instructions below](#setup).
 4. Execute `scraper.py` and use your telephone number (with country code) to look at the notifications. [See instructions below](#first-startup-of-scraperpy).
 5. Execute `sender.py` and use the token of your already created Telegram bot. [See instructions below](#first-startup-of-senderpy).
-6. Execute `editor.py` and use the token of your already created Telegram bot. [See instructions below](#first-startup-of-editorpy).
 
 ## Guide to Creating a Telegram Bot
 
@@ -99,7 +98,7 @@ You can edit it with the liked port on both scraper.py and sender.py
 
 ***Perform the above steps to start the two bots in a virtual environment and connect them to telegram***
 
-### First startup of editor.py
+### Accepted comands
 
 This script allow telegram bot to accept 3 commands:
 

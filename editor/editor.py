@@ -64,7 +64,7 @@ async def delete_command(update: Update, context: CallbackContext):
         print(f'{keywords}')
         if keyword_to_delete:  # Controlla se l'ID è valido
             parola_rimossa = keyword_to_delete[1]  # Trova la parola corrispondente all'ID
-            delete_keyword(keyword_to_delete[0])  # Elimina la parola dal database
+            delete_keyword(id_to_delete)  # Elimina la parola dal database
             await update.message.reply_text(f"Parola '{parola_rimossa}' eliminata con successo.")
         else:
             await update.message.reply_text("ID non valido. Usa un ID valido dalla lista.")

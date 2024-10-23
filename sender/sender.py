@@ -2,9 +2,9 @@ import os
 from dotenv import load_dotenv
 import socket
 import asyncio
-from telethon import TelegramClient
+from telethon import TelegramClient, events
 from datetime import datetime
-import json
+import sqlite3
 
 load_dotenv()
 
@@ -61,7 +61,6 @@ async def listen_socket():
 async def start_bot():
     await client.start()
     print("Running bots...")
-
     await listen_socket()
 
 if __name__ == '__main__':
