@@ -1,3 +1,4 @@
+import sqlite3
 from telethon import TelegramClient, events
 from dotenv import load_dotenv
 import os
@@ -20,34 +21,26 @@ TOKEN = os.getenv("TOKEN")
 BOT_USERNAME = os.getenv("BOT_USERNAME")
 client = TelegramClient('scraper', api_id, api_hash)
 
-keywords_pattern = None
 conn = None 
 
-def load_keywords():
+def load_keywords_from_db():
     try:
-        with open('keywords.txt', 'r') as f:
-            keywords = [line.strip() for line in f if line.strip()]
+        conn = sqlite3.connect('keywords.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT keyword FROM keywords")
+        keywords = [row[0] for row in cursor.fetchall()]
+        conn.close()
         return keywords
     except Exception as e:
-        print(f"Error when loading keywords: {e}")
+        print(f"Error when loading keywords from database: {e}")
         return []
-
-def update_keywords_pattern():
-    global keywords_pattern
-    keywords = load_keywords()
-    keywords_pattern = '|'.join(map(re.escape, keywords))
-
-update_keywords_pattern()
-
-async def refresh_keywords_periodically(interval=300):
-    while True:
-        update_keywords_pattern()
-        await asyncio.sleep(interval)
 
 @client.on(events.NewMessage())
 async def handler(event):
-    global keywords_pattern
     global conn
+    
+    keywords = load_keywords_from_db()
+    keywords_pattern = '|'.join(map(re.escape, keywords))
 
     if event.message.is_channel and event.message.reply_to:
         return
@@ -72,13 +65,7 @@ async def handler(event):
         else:
             channel_name = "Channel name not available"
 
-        chat_id = event.message.chat_id
         message_to_send = f"Message matching: {pattern_match.group(1)}\nFrom the channel '{channel_name}':\n{message_text}\n"
-
-        data_to_send = json.dumps({
-            "chat_id": chat_id,
-            "message": message_to_send
-        })
 
         try:
             conn.sendall(message_to_send.encode())
@@ -100,7 +87,6 @@ def reconnect_socket():
 async def start_bot():
     await client.start()
     print("Running bots...")
-    asyncio.create_task(refresh_keywords_periodically())
     await client.run_until_disconnected()
 
 if __name__ == '__main__':
