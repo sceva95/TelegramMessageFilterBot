@@ -5,8 +5,7 @@ ryzen
 macbook
 vans
 msi
-supet
-ti
+super
 dreame
 SwitchBot
 go 3
