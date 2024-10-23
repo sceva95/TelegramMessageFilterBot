@@ -85,8 +85,6 @@ async def handler(event):
     keywords = load_keywords_from_db()
     keywords_pattern = '|'.join(map(re.escape, keywords))
 
-    print(f'event {event}')
-
     if event.message.is_channel and event.message.reply_to:
         return
 
@@ -101,8 +99,6 @@ async def handler(event):
 
     message_text = event.message.message
     pattern_match = re.search(f"(?i).*({keywords_pattern}).*", message_text)
-
-    print(f"pattern {pattern_match}")
 
     if pattern_match:
         if hasattr(event.message.chat, 'title'):
