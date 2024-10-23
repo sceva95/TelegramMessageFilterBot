@@ -44,7 +44,7 @@ async def list_command(update: Update, context: CallbackContext):
         await update.message.reply_text("Nessuna parola trovata.")
         return
 
-    lista_numerata = "\n".join([f"{row[0]}. {row[1]}" for row in keywords])
+    lista_numerata = "\n".join([f"{i + 1}. {row[1]}" for i, row in enumerate(keywords)])
     await update.message.reply_text(f"Ecco la lista delle parole:\n{lista_numerata}")
 
 async def delete_command(update: Update, context: CallbackContext):
@@ -58,11 +58,13 @@ async def delete_command(update: Update, context: CallbackContext):
 
         # Controlla se l'ID esiste nel database
         keywords = get_keywords()
-        ids = [row[0] for row in keywords]  # Estrai gli ID esistenti nel database
 
-        if id_to_delete in ids:  # Controlla se l'ID è valido
-            parola_rimossa = next(row[1] for row in keywords if row[0] == id_to_delete)  # Trova la parola corrispondente all'ID
-            delete_keyword(id_to_delete)  # Elimina la parola dal database
+        keyword_to_delete = keywords[int(id_to_delete) - 1]
+        print(f'{keyword_to_delete[0]}')
+        print(f'{keywords}')
+        if keyword_to_delete:  # Controlla se l'ID è valido
+            parola_rimossa = keyword_to_delete[1]  # Trova la parola corrispondente all'ID
+            delete_keyword(keyword_to_delete[0])  # Elimina la parola dal database
             await update.message.reply_text(f"Parola '{parola_rimossa}' eliminata con successo.")
         else:
             await update.message.reply_text("ID non valido. Usa un ID valido dalla lista.")
