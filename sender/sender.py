@@ -16,7 +16,7 @@ async def send_to_bot(message_to_send):
     chat_id = int(os.getenv("USER_CHAT_ID"))
     try:
         await client.send_message(chat_id, message_to_send)
-        print(f"Message sent correctly!\n${message_to_send}")
+        print(f"Message sent correctly!")
     except Exception as e:
         print(f"Exception: {e}")
 
