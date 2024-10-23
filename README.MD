@@ -1,6 +1,6 @@
 # Telegram Message Filter Bot
 
-This program is for starting a Telegram bot that filters notifications based on keywords entered in the keywords file (separated by a carriage return).
+This program is for starting a Telegram bot that filters notifications based on keywords entered in the database.
 
 ## Steps to Start
 
@@ -9,6 +9,7 @@ This program is for starting a Telegram bot that filters notifications based on 
 3. Create a new virtual environment and install requirements. [See instructions below](#setup).
 4. Execute `scraper.py` and use your telephone number (with country code) to look at the notifications. [See instructions below](#first-startup-of-scraperpy).
 5. Execute `sender.py` and use the token of your already created Telegram bot. [See instructions below](#first-startup-of-senderpy).
+6. Execute `editor.py` and use the token of your already created Telegram bot. [See instructions below](#first-startup-of-editorpy).
 
 ## Guide to Creating a Telegram Bot
 
@@ -97,6 +98,14 @@ When both sender and scraper are up and running they open a socket connection on
 You can edit it with the liked port on both scraper.py and sender.py
 
 ***Perform the above steps to start the two bots in a virtual environment and connect them to telegram***
+
+### First startup of editor.py
+
+This script allow telegram bot to accept 3 commands:
+
+1. `/list`: Return the list id - value of the keywords
+2. `/add word`: Accept a word to be added on the db
+3. `/delete id`: Accept an id and delete that word
 
 ## starter.sh and kill_bot.sh
 

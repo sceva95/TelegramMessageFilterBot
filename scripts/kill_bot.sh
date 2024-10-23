@@ -17,3 +17,12 @@ if [ -f /tmp/sender_bot.pid ]; then
 else
     echo "sender_bot is not running"
 fi
+
+# Uccidi il bot editor
+if [ -f /tmp/editor_bot.pid ]; then
+    kill $(cat /tmp/editor_bot.pid)
+    rm /tmp/editor_bot.pid
+    echo "editor_bot killed"
+else
+    echo "editor_bot is not running"
+fi

@@ -1,69 +1,96 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, CallbackContext
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackContext
 from dotenv import load_dotenv
 import os
+import sqlite3
 
+# Carica il token da un file .env
 load_dotenv()
+TOKEN = os.getenv("TOKEN")
+USER_CHAT_ID = int(os.getenv("USER_CHAT_ID"))
 
-def load_keywords():
+def get_keywords():
+    conn = sqlite3.connect('keywords.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM keywords')
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
+async def add_keyword(word, update: Update = None):
     try:
-        with open('keywords.txt', 'r') as f:
-            keywords = [line.strip() for line in f if line.strip()]
-        return keywords
+        conn = sqlite3.connect('keywords.db')
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO keywords (keyword) VALUES (?)', (word,))
+        conn.commit()
+        conn.close()
+        return True
     except Exception as e:
-        print(f"Errore nel caricamento delle parole chiave: {e}")
-        return []
+        await update.message.reply_text(f"Error while adding keyword {word}: {e}")
+        print(f"Error while adding keyword {word}: {e}")
+        return False
 
-def add_keyword(new_keyword):
+
+def delete_keyword(id):
+    conn = sqlite3.connect('keywords.db')
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM keywords WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+
+async def list_command(update: Update, context: CallbackContext):
+    keywords = get_keywords()
+    if not keywords:
+        await update.message.reply_text("Nessuna parola trovata.")
+        return
+
+    lista_numerata = "\n".join([f"{row[0]}. {row[1]}" for row in keywords])
+    await update.message.reply_text(f"Ecco la lista delle parole:\n{lista_numerata}")
+
+async def delete_command(update: Update, context: CallbackContext):
+    if update.effective_chat.id != USER_CHAT_ID:
+        await update.message.reply_text("Non hai i permessi per eseguire questo comando.")
+        return
+
     try:
-        with open('keywords.txt', 'a') as f:
-            f.write(new_keyword + '\n')
-        print(f"Parola chiave '{new_keyword}' aggiunta con successo.")
-    except Exception as e:
-        print(f"Errore nell'aggiunta della parola chiave: {e}")
+        # Ottieni l'ID dall'argomento
+        id_to_delete = int(context.args[0])  
 
-async def start(update: Update, context: CallbackContext) -> None:
-    keyboard = [
-        [InlineKeyboardButton("Mostra le parole chiave", callback_data='list_keywords')],
-        [InlineKeyboardButton("Aggiungi una parola chiave", callback_data='add_keyword')]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+        # Controlla se l'ID esiste nel database
+        keywords = get_keywords()
+        ids = [row[0] for row in keywords]  # Estrai gli ID esistenti nel database
 
-    await update.message.reply_text('Scegli un\'azione:', reply_markup=reply_markup)
-
-async def button(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    await query.answer()  
-
-    if query.data == 'list_keywords':
-        keywords = load_keywords()
-        if keywords:
-            await query.edit_message_text(f"Le parole chiave sono:\n" + "\n".join(keywords))
+        if id_to_delete in ids:  # Controlla se l'ID è valido
+            parola_rimossa = next(row[1] for row in keywords if row[0] == id_to_delete)  # Trova la parola corrispondente all'ID
+            delete_keyword(id_to_delete)  # Elimina la parola dal database
+            await update.message.reply_text(f"Parola '{parola_rimossa}' eliminata con successo.")
         else:
-            await query.edit_message_text("Nessuna parola chiave trovata.")
+            await update.message.reply_text("ID non valido. Usa un ID valido dalla lista.")
+    except (IndexError, ValueError):
+        await update.message.reply_text("Per favore specifica un ID valido. Uso: /delete <id>")
 
-    elif query.data == 'add_keyword':
-        await query.edit_message_text("Invia la parola chiave che vuoi aggiungere:")
-        context.user_data['awaiting_keyword'] = True
+async def add_command(update: Update, context: CallbackContext):
+    if update.effective_chat.id != USER_CHAT_ID:
+        await update.message.reply_text("Non hai i permessi per eseguire questo comando.")
+        return
 
-async def handle_new_keyword(update: Update, context: CallbackContext) -> None:
-    if context.user_data.get('awaiting_keyword'):
-        new_keyword = update.message.text.strip()
-        if len(new_keyword) > 20:
-            await update.message.reply_text("La parola chiave non può superare i 20 caratteri. Riprova.")
-        else:
-            add_keyword(new_keyword)
-            await update.message.reply_text(f"Parola chiave '{new_keyword}' aggiunta con successo!")
-        context.user_data['awaiting_keyword'] = False
+    if context.args:
+        parola = ' '.join(context.args)  
+        result = await add_keyword(parola, update) 
+        if result:
+            await update.message.reply_text(f"Parola '{parola}' aggiunta con successo.")
+    else:
+        await update.message.reply_text("Per favore specifica una parola da aggiungere. Uso: /add <parola>")
+
 
 def main():
-    token = os.getenv("TOKEN")
+    application = ApplicationBuilder().token(TOKEN).build()
 
-    application = Application.builder().token(token).build()
+    application.add_handler(CommandHandler("list", list_command))
 
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CallbackQueryHandler(button))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_new_keyword))
+    application.add_handler(CommandHandler("delete", delete_command))
+
+    application.add_handler(CommandHandler("add", add_command))
 
     application.run_polling()
 
