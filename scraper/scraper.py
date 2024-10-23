@@ -72,7 +72,7 @@ async def handler(event):
             channel_name = "Channel name not available"
 
         message_to_send = f"Message matching: {pattern_match.group(1)}\nFrom the channel '{channel_name}':\n{message_text}\n"
-
+        await client.send_message('me', message_to_send)
         try:
             conn.sendall(message_to_send.encode())
         except BrokenPipeError:
