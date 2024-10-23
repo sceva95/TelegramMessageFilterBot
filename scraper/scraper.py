@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 import asyncio
 import socket
+import json
 
 load_dotenv()
 
@@ -71,8 +72,14 @@ async def handler(event):
         else:
             channel_name = "Channel name not available"
 
+        chat_id = event.message.chat_id
         message_to_send = f"Message matching: {pattern_match.group(1)}\nFrom the channel '{channel_name}':\n{message_text}\n"
-        await client.send_message('me', message_to_send)
+
+        data_to_send = json.dumps({
+            "chat_id": chat_id,
+            "message": message_to_send
+        })
+
         try:
             conn.sendall(message_to_send.encode())
         except BrokenPipeError:

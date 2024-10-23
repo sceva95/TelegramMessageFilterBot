@@ -4,6 +4,7 @@ import socket
 import asyncio
 from telethon import TelegramClient
 from datetime import datetime
+import json
 
 load_dotenv()
 
@@ -12,10 +13,13 @@ api_hash = os.getenv("API_HASH")
 
 client = TelegramClient('sender', api_id, api_hash)
 
-async def send_to_bot(message_to_send):
+async def send_to_bot(message_to_send, from_peer=None):
     chat_id = int(os.getenv("USER_CHAT_ID"))
     try:
-        await client.send_message(chat_id, message_to_send)
+        if(from_peer):
+            await client.forward_messages(chat_id, message_to_send, from_peer)
+        else:
+            await client.send_message(chat_id, message_to_send)
         print(f"Message sent correctly!")
     except Exception as e:
         print(f"Exception: {e}")
@@ -38,8 +42,13 @@ async def listen_socket():
                         print("Connection closed by server.")
                         break
                     shared_variable = data.decode()
+
+                    parsed_data = json.loads(shared_variable)
+                    chat_id = parsed_data['chat_id']
+                    message = parsed_data['message']
+
                     print(f"Variable received: {shared_variable}")
-                    await send_to_bot(shared_variable)
+                    await send_to_bot(message, chat_id)
 
             finally:
                 current_time = datetime.now()
