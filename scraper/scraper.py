@@ -22,6 +22,22 @@ client = TelegramClient('scraper', api_id, api_hash)
 
 conn = None 
 
+def initialize_database():
+    try:
+        conn = sqlite3.connect('keywords.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS keywords (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                keyword TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+        conn.close()
+        print("Database initialized and table created if it did not exist.")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+
 def load_keywords_from_db():
     try:
         conn = sqlite3.connect('keywords.db')
@@ -69,10 +85,12 @@ async def handler(event):
     keywords = load_keywords_from_db()
     keywords_pattern = '|'.join(map(re.escape, keywords))
 
+    print(f'event {event}')
+
     if event.message.is_channel and event.message.reply_to:
         return
 
-    if keywords_pattern is None or conn is None:
+    if not keywords or not keywords_pattern or conn is None:
         return
 
     sender = await event.get_sender()
@@ -83,6 +101,8 @@ async def handler(event):
 
     message_text = event.message.message
     pattern_match = re.search(f"(?i).*({keywords_pattern}).*", message_text)
+
+    print(f"pattern {pattern_match}")
 
     if pattern_match:
         if hasattr(event.message.chat, 'title'):
@@ -169,5 +189,6 @@ async def start_bot():
 
 if __name__ == '__main__':
     reconnect_socket()
+    initialize_database()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_bot())
