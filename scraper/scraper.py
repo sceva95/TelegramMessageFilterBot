@@ -85,7 +85,8 @@ async def handler(event):
     keywords = load_keywords_from_db()
     keywords_pattern = '|'.join(map(re.escape, keywords))
 
-    if event.message.is_channel and event.message.reply_to:
+    if event.message.is_channel and event.message.reply_to and event.message.is_reply:
+        print(f'Message is reply: {event.message}')
         return
 
     if not keywords or not keywords_pattern or conn is None:
@@ -120,6 +121,11 @@ async def handler(event):
 async def list_command(event):
     global conn
 
+    receiver = await event.client.get_entity(event.message.to_id)
+    if receiver.username != BOT_USERNAME:
+        print(f'Message received from another chat: {receiver.username}')
+        return
+
     if event.sender_id != USER_CHAT_ID:
         conn.sendall(f"Non hai i permessi per eseguire questo comando. {event.sender_id}".encode())
         return
@@ -136,6 +142,11 @@ async def list_command(event):
 async def add_command(event):
     global conn
 
+    receiver = await event.client.get_entity(event.message.to_id)
+    if receiver.username != BOT_USERNAME:
+        print(f'Message received from another chat: {receiver.username}')
+        return
+
     if event.sender_id != USER_CHAT_ID:
         conn.sendall(f"Non hai i permessi per eseguire questo comando. {event.sender_id}".encode())
         return
@@ -149,8 +160,12 @@ async def add_command(event):
 
 @client.on(events.NewMessage(pattern='/delete (.+)'))
 async def delete_command(event):
-
     global conn
+
+    receiver = await event.client.get_entity(event.message.to_id)
+    if receiver.username != BOT_USERNAME:
+        print(f'Message received from another chat: {receiver.username}')
+        return
 
     if event.sender_id != USER_CHAT_ID:
         conn.sendall(f"Non hai i permessi per eseguire questo comando. {event.sender_id}".encode())
